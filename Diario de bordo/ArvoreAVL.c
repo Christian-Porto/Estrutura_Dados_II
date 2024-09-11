@@ -65,4 +65,132 @@ Node* leftRotate(Node* x) {
     return y; // Nova raiz
 }
 
+// Função para obter o fator de balanceamento de um nó
+int getBalance(Node* node) {
+    if (node == NULL)
+        return 0;
+    return height(node->left) - height(node->right);
+}
+
+// Função para inserir um nó na árvore AVL
+Node* insertNode(Node* node, int data) {
+    // Inserção normal de árvore binária de busca
+    if (node == NULL)
+        return createNode(data);
+
+    if (data < node->data)
+        node->left = insertNode(node->left, data);
+    else if (data > node->data)
+        node->right = insertNode(node->right, data);
+    else // Não permite duplicatas
+        return node;
+
+    // Atualizando a altura do ancestral
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    // Verificando o fator de balanceamento
+    int balance = getBalance(node);
+
+    // Caso 1: Rotação à direita (desbalanceamento para a esquerda)
+    if (balance > 1 && data < node->left->data)
+        return rightRotate(node);
+
+    // Caso 2: Rotação à esquerda (desbalanceamento para a direita)
+    if (balance < -1 && data > node->right->data)
+        return leftRotate(node);
+
+    // Caso 3: Rotação à esquerda-direita
+    if (balance > 1 && data > node->left->data) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Caso 4: Rotação à direita-esquerda
+    if (balance < -1 && data < node->right->data) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node; // Nenhuma rotação necessária
+}
+
+// Função para encontrar o nó com o menor valor em uma árvore
+Node* minValueNode(Node* node) {
+    Node* current = node;
+
+    // Nó mais à esquerda
+    while (current->left != NULL)
+        current = current->left;
+
+    return current;
+}
+
+// Função para excluir um nó da árvore AVL
+Node* deleteNode(Node* root, int data) {
+    // Exclusão normal de árvore binária de busca
+    if (root == NULL)
+        return root;
+
+    if (data < root->data)
+        root->left = deleteNode(root->left, data);
+    else if (data > root->data)
+        root->right = deleteNode(root->right, data);
+    else {
+        // Nó com apenas um filho ou nenhum
+        if ((root->left == NULL) || (root->right == NULL)) {
+            Node* temp = root->left ? root->left : root->right;
+
+            // Caso sem filhos
+            if (temp == NULL) {
+                temp = root;
+                root = NULL;
+            } else // Um filho
+                *root = *temp;
+
+            free(temp);
+        } else {
+            // Nó com dois filhos: obter o sucessor em ordem
+            Node* temp = minValueNode(root->right);
+
+            // Copiar o valor do sucessor
+            root->data = temp->data;
+
+            // Excluir o sucessor
+            root->right = deleteNode(root->right, temp->data);
+        }
+    }
+
+    // Se a árvore tinha apenas um nó
+    if (root == NULL)
+        return root;
+
+    // Atualizando a altura
+    root->height = 1 + max(height(root->left), height(root->right));
+
+    // Verificando o fator de balanceamento
+    int balance = getBalance(root);
+
+    // Caso 1: Rotação à direita
+    if (balance > 1 && getBalance(root->left) >= 0)
+        return rightRotate(root);
+
+    // Caso 2: Rotação à esquerda
+    if (balance < -1 && getBalance(root->right) <= 0)
+        return leftRotate(root);
+
+    // Caso 3: Rotação à esquerda-direita
+    if (balance > 1 && getBalance(root->left) < 0) {
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+
+    // Caso 4: Rotação à direita-esquerda
+    if (balance < -1 && getBalance(root->right) > 0) {
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+
+    return root;
+}
+
 int main() { }
