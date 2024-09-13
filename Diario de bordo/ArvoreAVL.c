@@ -193,4 +193,54 @@ Node* deleteNode(Node* root, int data) {
     return root;
 }
 
-int main() { }
+// Função para pesquisar um elemento na árvore AVL
+Node* searchNode(Node* root, int data) {
+    if (root == NULL || root->data == data)
+        return root;
+
+    if (data < root->data)
+        return searchNode(root->left, data);
+    
+    return searchNode(root->right, data);
+}
+
+// Função para imprimir a árvore AVL em ordem
+void preOrder(Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        preOrder(root->left);
+        preOrder(root->right);
+    }
+}
+
+int main() {
+    Node* root = NULL;
+
+    // Inserindo elementos na árvore AVL
+    root = insertNode(root, 10);
+    root = insertNode(root, 20);
+    root = insertNode(root, 30);
+    root = insertNode(root, 40);
+    root = insertNode(root, 50);
+    root = insertNode(root, 25);
+
+    printf("Árvore AVL em pre-ordem: ");
+    preOrder(root);
+    printf("\n");
+
+    // Pesquisando um elemento
+    int searchVal = 30;
+    Node* foundNode = searchNode(root, searchVal);
+    if (foundNode != NULL)
+        printf("Elemento %d encontrado na árvore.\n", searchVal);
+    else
+        printf("Elemento %d não encontrado na árvore.\n", searchVal);
+
+    // Excluindo um elemento
+    root = deleteNode(root, 20);
+    printf("Árvore AVL após a exclusão do valor 20: ");
+    preOrder(root);
+    printf("\n");
+
+    return 0;
+}
