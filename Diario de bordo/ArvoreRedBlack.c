@@ -145,3 +145,41 @@ void insert(RBNode **root, int data) {
     bstInsert(root, node);
     fixInsert(root, node);
 }
+
+void inorderTraversal(RBNode *root) {
+    if (root == NULL) return;
+    
+    inorderTraversal(root->left);
+    printf("%d (%s) ", root->data, root->color == RED ? "RED" : "BLACK");
+    inorderTraversal(root->right);
+}
+
+void freeTree(RBNode *node) {
+    if (node == NULL) return;
+    
+    freeTree(node->left);
+    freeTree(node->right);
+    free(node);
+}
+
+int main() {
+    RBNode *root = NULL;
+    
+    // Inserção de dados na árvore
+    insert(&root, 10);
+    insert(&root, 20);
+    insert(&root, 30);
+    insert(&root, 15);
+    insert(&root, 25);
+    insert(&root, 5);
+    
+    // Impressão da árvore Red-Black em ordem
+    printf("In-order Traversal da Árvore Red-Black:\n");
+    inorderTraversal(root);
+    printf("\n");
+
+    // Libera a memória alocada para a árvore
+    freeTree(root);
+    
+    return 0;
+}
