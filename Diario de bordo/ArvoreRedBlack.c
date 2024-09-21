@@ -54,3 +54,94 @@ void rightRotate(RBNode **root, RBNode *y) {
     x->right = y;
     y->parent = x;
 }
+
+void bstInsert(RBNode **root, RBNode *node) {
+    RBNode *parent = NULL;
+    RBNode *current = *root;
+    
+    while (current != NULL) {
+        parent = current;
+        if (node->data < current->data)
+            current = current->left;
+        else
+            current = current->right;
+    }
+    
+    node->parent = parent;
+    if (parent == NULL)
+        *root = node;
+    else if (node->data < parent->data)
+        parent->left = node;
+    else
+        parent->right = node;
+}
+
+void fixInsert(RBNode **root, RBNode *node) {
+    RBNode *parent = NULL;
+    RBNode *grandparent = NULL;
+    
+    while ((node != *root) && (node->color != BLACK) && (node->parent->color == RED)) {
+        parent = node->parent;
+        grandparent = parent->parent;
+        
+        // Caso A: O pai é filho esquerdo do avô
+        if (parent == grandparent->left) {
+            RBNode *uncle = grandparent->right;
+            
+            // Caso 1: O tio é vermelho
+            if (uncle != NULL && uncle->color == RED) {
+                grandparent->color = RED;
+                parent->color = BLACK;
+                uncle->color = BLACK;
+                node = grandparent;
+            } else {
+                // Caso 2: O node é filho direito
+                if (node == parent->right) {
+                    leftRotate(root, parent);
+                    node = parent;
+                    parent = node->parent;
+                }
+                
+                // Caso 3: O node é filho esquerdo
+                rightRotate(root, grandparent);
+                NodeColor tempColor = parent->color;
+                parent->color = grandparent->color;
+                grandparent->color = tempColor;
+                node = parent;
+            }
+        }
+        // Caso B: O pai é filho direito do avô
+        else {
+            RBNode *uncle = grandparent->left;
+            
+            // Caso 1: O tio é vermelho
+            if ((uncle != NULL) && (uncle->color == RED)) {
+                grandparent->color = RED;
+                parent->color = BLACK;
+                uncle->color = BLACK;
+                node = grandparent;
+            } else {
+                // Caso 2: O node é filho esquerdo
+                if (node == parent->left) {
+                    rightRotate(root, parent);
+                    node = parent;
+                    parent = node->parent;
+                }
+                
+                // Caso 3: O node é filho direito
+                leftRotate(root, grandparent);
+                NodeColor tempColor = parent->color;
+                parent->color = grandparent->color;
+                grandparent->color = tempColor;
+                node = parent;
+            }
+        }
+    }
+    (*root)->color = BLACK;
+}
+
+void insert(RBNode **root, int data) {
+    RBNode *node = createNode(data);
+    bstInsert(root, node);
+    fixInsert(root, node);
+}
