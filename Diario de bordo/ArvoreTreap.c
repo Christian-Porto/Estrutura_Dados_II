@@ -70,4 +70,71 @@ Node* insert(Node* root, int key) {
     return root;
 }
 
-int main() { }
+// Função para deletar uma chave da Treap
+Node* deleteNode(Node* root, int key) {
+    if (root == NULL)
+        return root;
+
+    // Procurar a chave a ser removida
+    if (key < root->key)
+        root->left = deleteNode(root->left, key);
+    else if (key > root->key)
+        root->right = deleteNode(root->right, key);
+    else {
+        // Se a chave for encontrada
+        if (root->left == NULL) {
+            Node* temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            Node* temp = root->left;
+            free(root);
+            return temp;
+        } else {
+            // Se o nó tiver ambos os filhos, realizar rotações
+            if (root->left->priority > root->right->priority) {
+                root = rotateRight(root);
+                root->right = deleteNode(root->right, key);
+            } else {
+                root = rotateLeft(root);
+                root->left = deleteNode(root->left, key);
+            }
+        }
+    }
+    return root;
+}
+
+// Função para impressão em ordem da Treap (in-order traversal)
+void inorder(Node* root) {
+    if (root) {
+        inorder(root->left);
+        printf("Key: %d | Priority: %d\n", root->key, root->priority);
+        inorder(root->right);
+    }
+}
+
+// Função principal
+int main() {
+    Node* root = NULL;
+
+    // Inserção de nós na Treap
+    root = insert(root, 50);
+    root = insert(root, 30);
+    root = insert(root, 20);
+    root = insert(root, 40);
+    root = insert(root, 70);
+    root = insert(root, 60);
+    root = insert(root, 80);
+
+    printf("Treap após inserções:\n");
+    inorder(root);
+
+    // Remover nós
+    root = deleteNode(root, 20);
+    root = deleteNode(root, 30);
+
+    printf("\nTreap após remoções:\n");
+    inorder(root);
+
+    return 0;
+}
