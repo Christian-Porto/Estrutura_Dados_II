@@ -6,6 +6,7 @@
 #define MAX 3
 #define MIN 2
 
+// Estrutura de um nó da árvore B
 struct BTreeNode {
     int val[MAX + 1], count;
     struct BTreeNode *link[MAX + 1];
@@ -13,7 +14,7 @@ struct BTreeNode {
 
 struct BTreeNode *root = NULL;
 
-// Criação do nó
+// Função para criar um novo nó
 struct BTreeNode *createNode(int val, struct BTreeNode *child) {
     struct BTreeNode *newNode;
     newNode = (struct BTreeNode *)malloc(sizeof(struct BTreeNode));
@@ -24,7 +25,7 @@ struct BTreeNode *createNode(int val, struct BTreeNode *child) {
     return newNode;
 }
 
-// Adicionar valor ao nó
+// Função para adicionar valor a um nó
 void insertNode(int val, int pos, struct BTreeNode *node, struct BTreeNode *child) {
     int j = node->count;
     while (j > pos) {
@@ -37,7 +38,7 @@ void insertNode(int val, int pos, struct BTreeNode *node, struct BTreeNode *chil
     node->count++;
 }
 
-// Divisão do nó
+// Função para dividir um nó
 void splitNode(int val, int *pval, int pos, struct BTreeNode *node, struct BTreeNode *child, struct BTreeNode **newNode) {
     int median, j;
     if (pos > MIN) {
@@ -65,7 +66,7 @@ void splitNode(int val, int *pval, int pos, struct BTreeNode *node, struct BTree
     node->count--;
 }
 
-// Definir valor no nó
+// Função para definir o valor no nó
 int setValue(int val, int *pval, struct BTreeNode *node, struct BTreeNode **child) {
     int pos;
     if (!node) {
@@ -93,7 +94,7 @@ int setValue(int val, int *pval, struct BTreeNode *node, struct BTreeNode **chil
     return 0;
 }
 
-// Inserir valor
+// Função para inserir um valor na árvore
 void insert(int val) {
     int flag, i;
     struct BTreeNode *child;
@@ -103,12 +104,66 @@ void insert(int val) {
     }
 }
 
+// Função para imprimir a árvore B em níveis
+void printTree(struct BTreeNode *node, int level) {
+    if (node != NULL) {
+        int i;
+
+        // Imprime os filhos da direita primeiro
+        for (i = node->count; i > 0; i--) {
+            if (node->link[i] != NULL) {
+                printTree(node->link[i], level + 1);
+            }
+        }
+
+        // Imprime o nó atual com todas as suas chaves
+        for (i = 0; i < node->count; i++) {
+            printf("%*s%d ", level * 5, "", node->val[i + 1]);
+        }
+        printf("\n");
+
+        // Imprime os filhos da esquerda
+        if (node->link[0] != NULL) {
+            printTree(node->link[0], level + 1);
+        }
+    }
+}
+
+// Função de busca de um valor na árvore B
+void search(int val, struct BTreeNode *node) {
+    if (node == NULL) {
+        printf("%d não encontrado\n", val);
+        return;
+    }
+    int i = 1;
+    while (i <= node->count && val > node->val[i]) {
+        i++;
+    }
+    if (i <= node->count && val == node->val[i]) {
+        printf("%d encontrado\n", val);
+        return;
+    }
+    search(val, node->link[i - 1]);
+}
+
+// Função principal
 int main() {
     // Inserções iniciais
     insert(8);
     insert(9);
     insert(10);
+    insert(15);
+    insert(16);
+    insert(17);
+
+    // Impressão da árvore
+    printf("Árvore B após inserções:\n");
+    printTree(root, 0);
+    printf("\n");
+
+    // Busca de valores
+    search(10, root);
+    search(18, root);
 
     return 0;
 }
-
