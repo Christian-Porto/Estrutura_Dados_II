@@ -104,6 +104,110 @@ void insert(int val) {
     }
 }
 
+// Função para copiar o sucessor durante a exclusão
+void copySuccessor(struct BTreeNode *myNode, int pos) {
+    struct BTreeNode *dummy;
+    dummy = myNode->link[pos];
+    while (dummy->link[0] != NULL) {
+        dummy = dummy->link[0];
+    }
+    myNode->val[pos] = dummy->val[1];
+}
+
+// Função para remover o valor de um nó
+void removeVal(struct BTreeNode *myNode, int pos) {
+    int i = pos + 1;
+    while (i <= myNode->count) {
+        myNode->val[i - 1] = myNode->val[i];
+        myNode->link[i - 1] = myNode->link[i];
+        i++;
+    }
+    myNode->count--;
+}
+
+// Função para ajustar o nó após a remoção
+void adjustNode(struct BTreeNode *myNode, int pos) {
+    if (!pos) {
+        if (myNode->link[1]->count > MIN) {
+            // Rotacionar ou mesclar, se necessário
+        } else {
+            // Mesclar, se necessário
+        }
+    } else {
+        if (myNode->count != pos) {
+            if (myNode->link[pos - 1]->count > MIN) {
+                // Rotacionar à direita
+            } else {
+                if (myNode->link[pos + 1]->count > MIN) {
+                    // Rotacionar à esquerda
+                } else {
+                    // Mesclar os nós
+                }
+            }
+        } else {
+            if (myNode->link[pos - 1]->count > MIN) {
+                // Rotacionar à direita
+            } else {
+                // Mesclar os nós
+            }
+        }
+    }
+}
+
+// Função para excluir um valor de um nó
+int delValFromNode(int val, struct BTreeNode *myNode) {
+    int pos, flag = 0;
+    if (myNode) {
+        if (val < myNode->val[1]) {
+            pos = 0;
+            flag = 0;
+        } else {
+            for (pos = myNode->count; (val < myNode->val[pos] && pos > 1); pos--);
+            if (val == myNode->val[pos]) {
+                flag = 1;
+            } else {
+                flag = 0;
+            }
+        }
+        if (flag) {
+            if (myNode->link[pos - 1]) {
+                copySuccessor(myNode, pos);
+                flag = delValFromNode(myNode->val[pos], myNode->link[pos]);
+                if (flag == 0) {
+                    printf("Dado não presente na Árvore B\n");
+                }
+            } else {
+                removeVal(myNode, pos);
+            }
+        } else {
+            flag = delValFromNode(val, myNode->link[pos]);
+        }
+        if (myNode->link[pos]) {
+            if (myNode->link[pos]->count < MIN) {
+                adjustNode(myNode, pos);
+            }
+        }
+    }
+    return flag;
+}
+
+// Função de exclusão de um valor na árvore B
+void delete(int val, struct BTreeNode *myNode) {
+    struct BTreeNode *tmp;
+    if (!delValFromNode(val, myNode)) {
+        printf("Não encontrado\n");
+        return;
+    } else {
+        if (myNode->count == 0) {
+            tmp = myNode;
+            myNode = myNode->link[0];
+            free(tmp);
+        }
+    }
+    root = myNode;
+    return;
+}
+
 // Função para imprimir a árvore B em níveis
 void printTree(struct BTreeNode *node, int level) {
     if (node != NULL) {
@@ -152,12 +256,22 @@ int main() {
     insert(8);
     insert(9);
     insert(10);
+    insert(11);
     insert(15);
     insert(16);
     insert(17);
+    insert(18);
+    insert(20);
+    insert(23);
 
-    // Impressão da árvore
+    // Impressão da árvore após inserções
     printf("Árvore B após inserções:\n");
+    printTree(root, 0);
+    printf("\n");
+
+    // Exclusão de valor
+    delete(20, root);
+    printf("Árvore B após excluir 20:\n");
     printTree(root, 0);
     printf("\n");
 
